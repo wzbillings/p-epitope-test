@@ -138,7 +138,8 @@ final_dist_data <-
 	) |>
 	dplyr::distinct(
 		type_subtype, has_signal_peptide, straincomb, metric, d, .keep_all = TRUE
-	)
+	) |>
+	dplyr::select(-straincomb)
 ```
 
 ## Comparisons
@@ -147,7 +148,8 @@ final_dist_data <-
 final_dist_data |>
 	tidyr::nest(dat = c(Strain1, Strain2, d, has_signal_peptide)) |>
 	dplyr::mutate(
-		ttest = purrr::map(dat, \(x) t.test(d ~ has_signal_peptide, data = x))
+		ttest = purrr::map(dat, \(x) t.test(d ~ has_signal_peptide, data = x)),
+		p = purrr::map_dbl(ttest, \(x) x$p.value)
 	)
 ```
 
